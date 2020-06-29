@@ -420,7 +420,7 @@ return
 
 reset:
    task = 'reset' ; call display_init task
-   call reject; call restore; call stop; call copy; call start; call apf
+   call reject; call restore; call stop; call copy; call apf; call start
    task = 'reset' ; call display_end task
 return
 
@@ -447,14 +447,18 @@ init:
    /* read config.json file */
    input_file  = 'config.json'
    do while lines(input_file) \= 0
-      line = linein(input_file)
+      line = caseless linein(input_file)
       valid_record = pos(":",line)
       if valid_record = 0 then iterate
       parse var line '"' head '"' ':' tail ',' 
-      command = head '=' tail 
+
+      if pos('"',tail) = 0 then command = head "='"||tail||"'"
+      else command = head "="tail
+      
       interpret command 
    end /* do while */
    call lineout input_file
+
 return
 
 display_init:
